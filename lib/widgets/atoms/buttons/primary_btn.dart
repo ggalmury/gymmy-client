@@ -22,7 +22,7 @@ class PrimaryBtn extends StatelessWidget {
     }
   }
 
-  Color _foregroundColor() {
+  Color _fontColor() {
     switch (widgetColor) {
       case WidgetColor.appColor:
         return Colors.white;
@@ -37,16 +37,17 @@ class PrimaryBtn extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-            backgroundColor: _backgroundColor(),
-            foregroundColor: _foregroundColor(),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            )),
+          backgroundColor: _backgroundColor(),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
         child: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            color: _fontColor(),
           ),
         ),
       ),

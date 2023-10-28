@@ -24,7 +24,7 @@ class SvgRow extends StatelessWidget {
             child: ScreenUtil.svgFactory(svgName, svgSize ?? 16),
           ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 7),
         Text(
           label,
           style: const TextStyle(

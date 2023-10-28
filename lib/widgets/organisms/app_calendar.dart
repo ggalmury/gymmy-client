@@ -13,7 +13,7 @@ class AppCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColor.grey2,
+        color: AppColor.grey1,
         borderRadius: BorderRadius.all(
           Radius.circular(20),
         ),

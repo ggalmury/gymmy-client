@@ -13,11 +13,13 @@ class ScreenUtil {
       isScrollControlled: true,
       showDragHandle: true,
       builder: (BuildContext ctx) {
-        return SizedBox(
-          height: height ?? MediaQuery.of(context).size.height * 0.8,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: child,
+        return SafeArea(
+          child: SizedBox(
+            height: height ?? MediaQuery.of(context).size.height * 0.8,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: child,
+            ),
           ),
         );
       },

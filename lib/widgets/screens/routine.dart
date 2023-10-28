@@ -3,6 +3,7 @@ import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/screen_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
+import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
 import 'package:gymmy_client/widgets/molecules/svg_row.dart';
 import 'package:gymmy_client/widgets/organisms/app_calendar.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
@@ -38,7 +39,7 @@ class _RoutineState extends State<Routine> {
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
-                color: AppColor.grey2,
+                color: AppColor.grey1,
                 borderRadius: BorderRadius.all(
                   Radius.circular(20),
                 ),
@@ -102,9 +103,7 @@ class _RoutineState extends State<Routine> {
                       label: "자세히 보기",
                       onPressed: () => ScreenUtil.bottomSheetHandler(
                         context,
-                        const Center(
-                          child: Text("바텀시트"),
-                        ),
+                        _BottomSheetBody(),
                       ),
                       widgetColor: WidgetColor.appColor,
                       widgetSize: WidgetSize.big,
@@ -115,6 +114,170 @@ class _RoutineState extends State<Routine> {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class _BottomSheetBody extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(text: "오늘은 "),
+                    TextSpan(
+                      text: "가슴",
+                      style: TextStyle(color: AppColor.appColor),
+                    ),
+                    TextSpan(text: " 하는날🔥"),
+                  ],
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ];
+      },
+      body: SingleChildScrollView(
+        child: Column(
+          children: List.generate(
+            6,
+            (index) {
+              return const Column(
+                children: [
+                  _PlanContainer(),
+                  SizedBox(height: 20),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanContainer extends StatefulWidget {
+  const _PlanContainer({super.key});
+
+  @override
+  State<_PlanContainer> createState() => __PlanContainertate();
+}
+
+class __PlanContainertate extends State<_PlanContainer> {
+  bool _updateToggle = false;
+
+  void _setUpdateToggle() {
+    setState(() {
+      _updateToggle = !_updateToggle;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _setUpdateToggle,
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: AppColor.grey1,
+          borderRadius: BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        ClipRect(
+                          child: Image.asset(
+                            "assets/image/bench-press.png",
+                            width: 55,
+                            height: 55,
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "벤치프레스",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "가슴",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Icon(
+                      _updateToggle
+                          ? Icons.arrow_drop_up
+                          : Icons.arrow_drop_down,
+                      size: 25,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              AnimatedContainer(
+                width: double.infinity,
+                height: _updateToggle ? 60 : 0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextBtn(
+                        label: "삭제",
+                        onPressed: () {},
+                        fontColor: Colors.red,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: PrimaryBtn(
+                        label: "정보",
+                        onPressed: () {},
+                        widgetColor: WidgetColor.appColor,
+                        widgetSize: WidgetSize.small,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
