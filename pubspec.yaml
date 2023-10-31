@@ -34,5 +34,5 @@ flutter:
   uses-material-design: true
   assets:
     - .env
-    - assets/image/
-    - assets/svg/
+    - assets/images/exercise/
+    - assets/svgs/

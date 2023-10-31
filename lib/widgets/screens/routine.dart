@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/screen_util.dart';
@@ -120,47 +121,65 @@ class _RoutineState extends State<Routine> {
 }
 
 class _BottomSheetBody extends StatelessWidget {
+  final List<Workout> workOutList = [
+    Workout(name: "벤치프레스", target: ["가슴"]),
+    Workout(name: "데드리프트", target: ["전신", "하체", "등"]),
+    Workout(name: "스쿼트", target: ["하체"])
+  ];
+
+  _BottomSheetBody({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) {
-        return [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: RichText(
-                text: const TextSpan(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 50),
+                child: Column(
                   children: [
-                    TextSpan(text: "오늘은 "),
-                    TextSpan(
-                      text: "가슴",
-                      style: TextStyle(color: AppColor.appColor),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(text: "오늘은 "),
+                            TextSpan(
+                              text: "가슴",
+                              style: TextStyle(color: AppColor.appColor),
+                            ),
+                            TextSpan(text: " 하는날🔥"),
+                          ],
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
                     ),
-                    TextSpan(text: " 하는날🔥"),
                   ],
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
                 ),
               ),
             ),
-          ),
-        ];
-      },
-      body: SingleChildScrollView(
-        child: Column(
-          children: List.generate(
-            6,
-            (index) {
-              return const Column(
-                children: [
-                  _PlanContainer(),
-                  SizedBox(height: 20),
-                ],
-              );
-            },
+          ];
+        },
+        body: SingleChildScrollView(
+          child: Column(
+            children: List.generate(
+              workOutList.length,
+              (index) {
+                return Column(
+                  children: [
+                    _PlanContainer(workout: workOutList[index]),
+                    const SizedBox(height: 20),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -169,13 +188,15 @@ class _BottomSheetBody extends StatelessWidget {
 }
 
 class _PlanContainer extends StatefulWidget {
-  const _PlanContainer({super.key});
+  final Workout workout;
+
+  const _PlanContainer({super.key, required this.workout});
 
   @override
-  State<_PlanContainer> createState() => __PlanContainertate();
+  State<_PlanContainer> createState() => __PlanContainerState();
 }
 
-class __PlanContainertate extends State<_PlanContainer> {
+class __PlanContainerState extends State<_PlanContainer> {
   bool _updateToggle = false;
 
   void _setUpdateToggle() {
@@ -202,7 +223,7 @@ class __PlanContainertate extends State<_PlanContainer> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               SizedBox(
-                height: 70,
+                height: 80,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -210,29 +231,51 @@ class __PlanContainertate extends State<_PlanContainer> {
                       children: [
                         ClipRect(
                           child: Image.asset(
-                            "assets/image/bench-press.png",
+                            "assets/images/exercise/${widget.workout.name}.png",
                             width: 55,
                             height: 55,
                           ),
                         ),
                         const SizedBox(width: 15),
-                        const Column(
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "벤치프레스",
-                              style: TextStyle(
+                              widget.workout.name,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              "가슴",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                            const SizedBox(height: 15),
+                            Row(
+                              children: List.generate(
+                                widget.workout.target.length,
+                                (index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 5),
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: AppColor.grey3,
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(20),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15, vertical: 5),
+                                        child: Text(
+                                          widget.workout.target[index],
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -248,10 +291,9 @@ class __PlanContainertate extends State<_PlanContainer> {
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
               AnimatedContainer(
                 width: double.infinity,
-                height: _updateToggle ? 60 : 0,
+                height: _updateToggle ? 50 : 0,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.ease,
                 child: Row(

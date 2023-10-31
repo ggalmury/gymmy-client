@@ -34,9 +34,9 @@ class PrimaryBtn extends StatelessWidget {
     return SizedBox(
       width: widgetSize == WidgetSize.big ? double.infinity : null,
       height: widgetSize == WidgetSize.big ? 50 : 40,
-      child: OutlinedButton(
+      child: ElevatedButton(
         onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
+        style: ElevatedButton.styleFrom(
           backgroundColor: _backgroundColor(),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -45,7 +45,7 @@ class PrimaryBtn extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             color: _fontColor(),
           ),
