@@ -45,7 +45,7 @@ class PrimaryBtn extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: FontWeight.bold,
             color: _fontColor(),
           ),

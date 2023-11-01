@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/screen_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
-import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
+import 'package:gymmy_client/widgets/molecules/plan_container.dart';
 import 'package:gymmy_client/widgets/molecules/svg_row.dart';
 import 'package:gymmy_client/widgets/organisms/app_calendar.dart';
+import 'package:gymmy_client/widgets/screens/routine_create.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
 import 'package:intl/intl.dart';
 
@@ -121,11 +121,7 @@ class _RoutineState extends State<Routine> {
 }
 
 class _BottomSheetBody extends StatelessWidget {
-  final List<Workout> workOutList = [
-    Workout(name: "벤치프레스", target: ["가슴"]),
-    Workout(name: "데드리프트", target: ["전신", "하체", "등"]),
-    Workout(name: "스쿼트", target: ["하체"])
-  ];
+  final List<String> workOutList = ["벤치프레스", "데드리프트", "스쿼트"];
 
   _BottomSheetBody({super.key});
 
@@ -138,29 +134,79 @@ class _BottomSheetBody extends StatelessWidget {
           return [
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(top: 10, bottom: 50),
+                padding: const EdgeInsets.only(top: 10, bottom: 30),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(text: "오늘은 "),
-                            TextSpan(
-                              text: "가슴",
-                              style: TextStyle(color: AppColor.appColor),
-                            ),
-                            TextSpan(text: " 하는날🔥"),
-                          ],
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(text: "오늘은 "),
+                          TextSpan(
+                            text: "가슴",
+                            style: TextStyle(color: AppColor.appColor),
                           ),
+                          TextSpan(text: " 하는날🔥"),
+                        ],
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "13:00",
+                            style: TextStyle(color: AppColor.appColor),
+                          ),
+                          TextSpan(text: " 부터 "),
+                          TextSpan(
+                            text: "14:00",
+                            style: TextStyle(color: AppColor.appColor),
+                          ),
+                          TextSpan(text: " 까지"),
+                        ],
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "1시간",
+                            style: TextStyle(color: AppColor.appColor),
+                          ),
+                          TextSpan(text: " 동안 열심히 운동할 예정이에요."),
+                        ],
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    PrimaryBtn(
+                      label: "루틴 추가하기",
+                      onPressed: () => Navigator.push<void>(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              const RoutineCreate(),
+                        ),
+                      ),
+                      widgetColor: WidgetColor.appColor,
+                      widgetSize: WidgetSize.big,
+                    )
                   ],
                 ),
               ),
@@ -174,150 +220,18 @@ class _BottomSheetBody extends StatelessWidget {
               (index) {
                 return Column(
                   children: [
-                    _PlanContainer(workout: workOutList[index]),
+                    PlanContainer(
+                      workoutName: workOutList[index],
+                      onUpdate: () {},
+                      onDelete: () => ScreenUtil.alertModalHandler(
+                          context, "루틴을 삭제할까요?",
+                          cancelable: true),
+                    ),
                     const SizedBox(height: 20),
                   ],
                 );
               },
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PlanContainer extends StatefulWidget {
-  final Workout workout;
-
-  const _PlanContainer({super.key, required this.workout});
-
-  @override
-  State<_PlanContainer> createState() => __PlanContainerState();
-}
-
-class __PlanContainerState extends State<_PlanContainer> {
-  bool _updateToggle = false;
-
-  void _setUpdateToggle() {
-    setState(() {
-      _updateToggle = !_updateToggle;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _setUpdateToggle,
-      child: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          color: AppColor.grey1,
-          borderRadius: BorderRadius.all(
-            Radius.circular(10),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(
-                height: 80,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        ClipRect(
-                          child: Image.asset(
-                            "assets/images/exercise/${widget.workout.name}.png",
-                            width: 55,
-                            height: 55,
-                          ),
-                        ),
-                        const SizedBox(width: 15),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.workout.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: List.generate(
-                                widget.workout.target.length,
-                                (index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 5),
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        color: AppColor.grey3,
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(20),
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 15, vertical: 5),
-                                        child: Text(
-                                          widget.workout.target[index],
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Icon(
-                      _updateToggle
-                          ? Icons.arrow_drop_up
-                          : Icons.arrow_drop_down,
-                      size: 25,
-                    ),
-                  ],
-                ),
-              ),
-              AnimatedContainer(
-                width: double.infinity,
-                height: _updateToggle ? 50 : 0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextBtn(
-                        label: "삭제",
-                        onPressed: () {},
-                        fontColor: Colors.red,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: PrimaryBtn(
-                        label: "정보",
-                        onPressed: () {},
-                        widgetColor: WidgetColor.appColor,
-                        widgetSize: WidgetSize.small,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
           ),
         ),
       ),

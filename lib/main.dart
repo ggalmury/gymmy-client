@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/widgets/screens/index.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -20,7 +21,14 @@ class MainApp extends StatelessWidget {
       supportedLocales: const [
         Locale('ko'),
       ],
-      theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          foregroundColor: AppColor.appColor,
+        ),
+      ),
       home: const Index(),
     );
   }
