@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gymmy_client/properties/app_color.dart';
+import 'package:gymmy_client/utils/constant.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/screen_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
-import 'package:gymmy_client/widgets/molecules/plan_container.dart';
+import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
 import 'package:gymmy_client/widgets/molecules/svg_row.dart';
 import 'package:gymmy_client/widgets/organisms/app_calendar.dart';
 import 'package:gymmy_client/widgets/screens/routine_create.dart';
@@ -121,7 +122,7 @@ class _RoutineState extends State<Routine> {
 }
 
 class _BottomSheetBody extends StatelessWidget {
-  final List<String> workOutList = ["벤치프레스", "데드리프트", "스쿼트"];
+  final List<String> workOutList = ["벤치 프레스", "데드리프트", "스쿼트"];
 
   _BottomSheetBody({super.key});
 
@@ -220,7 +221,7 @@ class _BottomSheetBody extends StatelessWidget {
               (index) {
                 return Column(
                   children: [
-                    PlanContainer(
+                    _PlanContainer(
                       workoutName: workOutList[index],
                       onUpdate: () {},
                       onDelete: () => ScreenUtil.alertModalHandler(
@@ -232,6 +233,151 @@ class _BottomSheetBody extends StatelessWidget {
                 );
               },
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanContainer extends StatefulWidget {
+  final String workoutName;
+  final VoidCallback onUpdate;
+  final VoidCallback onDelete;
+
+  const _PlanContainer(
+      {super.key,
+      required this.workoutName,
+      required this.onUpdate,
+      required this.onDelete});
+
+  @override
+  State<_PlanContainer> createState() => __PlanContainerState();
+}
+
+class __PlanContainerState extends State<_PlanContainer> {
+  bool _updateToggle = false;
+
+  void _setUpdateToggle() {
+    setState(() {
+      _updateToggle = !_updateToggle;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic> workOutValue = workouts[widget.workoutName]!;
+
+    return GestureDetector(
+      onTap: _setUpdateToggle,
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: AppColor.grey1,
+          borderRadius: BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 80,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        ClipRect(
+                          child: Image.asset(
+                            "assets/images/exercise/${workOutValue["imgSrc"]}.png",
+                            width: 55,
+                            height: 55,
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.workoutName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Row(
+                              children: List.generate(
+                                (workOutValue["target"] as List<String>).length,
+                                (index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 5),
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: AppColor.grey3,
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(20),
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15, vertical: 5),
+                                        child: Text(
+                                          workOutValue["target"][index],
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Icon(
+                      _updateToggle
+                          ? Icons.arrow_drop_up
+                          : Icons.arrow_drop_down,
+                      size: 25,
+                    ),
+                  ],
+                ),
+              ),
+              AnimatedContainer(
+                width: double.infinity,
+                height: _updateToggle ? 50 : 0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextBtn(
+                        label: "삭제",
+                        onPressed: widget.onDelete,
+                        fontColor: Colors.red,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: PrimaryBtn(
+                        label: "정보",
+                        onPressed: widget.onUpdate,
+                        widgetColor: WidgetColor.appColor,
+                        widgetSize: WidgetSize.small,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

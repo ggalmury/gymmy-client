@@ -34,5 +34,13 @@ flutter:
   uses-material-design: true
   assets:
     - .env
-    - assets/images/exercise/
+    - assets/images/exercise/back/
+    - assets/images/exercise/biceps/
+    - assets/images/exercise/chest/
+    - assets/images/exercise/core/
+    - assets/images/exercise/foreArms/
+    - assets/images/exercise/legs/
+    - assets/images/exercise/shoulders/
+    - assets/images/exercise/triceps/
+    - assets/images/exercise/wholeBody/
     - assets/svgs/
