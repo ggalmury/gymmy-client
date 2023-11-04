@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/widgets/screens/index.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() {
+init() async {
+  WidgetsFlutterBinding.ensureInitialized();
+}
+
+void main() async {
+  await init();
+
   runApp(const MainApp());
 }
 
@@ -27,6 +34,7 @@ class MainApp extends StatelessWidget {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           foregroundColor: AppColor.appColor,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
         ),
       ),
       home: const Index(),

@@ -5,6 +5,7 @@ import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/screen_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
+import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
 import 'package:gymmy_client/widgets/molecules/svg_row.dart';
 import 'package:gymmy_client/widgets/organisms/app_calendar.dart';
 import 'package:gymmy_client/widgets/screens/routine_create.dart';
@@ -224,9 +225,13 @@ class _BottomSheetBody extends StatelessWidget {
                     _PlanContainer(
                       workoutName: workOutList[index],
                       onUpdate: () {},
-                      onDelete: () => ScreenUtil.alertModalHandler(
-                          context, "루틴을 삭제할까요?",
-                          cancelable: true),
+                      onDelete: () => showDialog(
+                        context: context,
+                        builder: (context) => const AlertModal(
+                          title: "루틴을 삭제할까요?",
+                          cancelable: true,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
                   ],
