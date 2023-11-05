@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/constant.dart';
-import 'package:gymmy_client/utils/enum/widget.dart';
-import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
+import 'package:gymmy_client/utils/helper/screen_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/toggle_btn.dart';
 import 'package:gymmy_client/widgets/atoms/inputs/search_input.dart';
 import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
 import 'package:gymmy_client/widgets/molecules/app_tabbar.dart';
+import 'package:gymmy_client/widgets/organisms/modify_routine.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
 
 class RoutineCreate extends StatefulWidget {
@@ -18,7 +18,7 @@ class RoutineCreate extends StatefulWidget {
 }
 
 class _RoutineCreateState extends State<RoutineCreate> {
-  final List<String> _tabBar = ["루틴 목록", "추가된 루틴"];
+  final List<String> _tabBar = ["루틴 목록", "오늘의 플랜"];
   final List<String> _targets = [
     "전체",
     wholeBody,
@@ -32,7 +32,6 @@ class _RoutineCreateState extends State<RoutineCreate> {
     core
   ];
 
-  final List<Workout> addedWorkoutList = [];
   late TextEditingController textEditingController;
   late List<MapEntry<String, Map<String, dynamic>>> currentWorkoutList;
   late String currentTarget;
@@ -49,27 +48,43 @@ class _RoutineCreateState extends State<RoutineCreate> {
     });
   }
 
-  void _pushWorkoutToList(String w) {
-    if (addedWorkoutList.any((element) => element.name == w)) {
-      showDialog(
-        context: context,
-        builder: (context) => const AlertModal(
-          title: "이미 존재하는 루틴입니다.",
-          submitBtnLabel: "확인",
-        ),
-      );
-      return;
-    }
+  void _pushWorkoutToList(Workout w) {
+    // TODO: implement
 
-    setState(() {
-      addedWorkoutList.add(Workout(name: w));
-    });
+    showDialog(
+      context: context,
+      builder: (context) => AlertModal(
+        title: "루틴이 추가되었습니다.",
+        subTitle: w.name,
+        submitBtnLabel: "확인",
+      ),
+    );
   }
 
   void _removeWorkoutToList(String w) {
-    setState(() {
-      addedWorkoutList.removeWhere((element) => element.name == w);
-    });
+    // TODO: implement
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertModal(
+        title: "루틴이 되었습니다.",
+        subTitle: w,
+        submitBtnLabel: "확인",
+      ),
+    );
+  }
+
+  void _onAddRoutineBottomSheet(String n) {
+    // TODO: exception handling
+
+    ScreenUtil.bottomSheetHandler(
+      context,
+      ModifyRoutine(
+        workout: Workout(name: n),
+        onSubmit: _pushWorkoutToList,
+      ),
+      height: 400,
+    );
   }
 
   @override
@@ -135,34 +150,16 @@ class _RoutineCreateState extends State<RoutineCreate> {
                             itemBuilder: (context, index) {
                               return _WorkoutContainer(
                                 workout: currentWorkoutList[index],
-                                onPressed: _pushWorkoutToList,
+                                onTap: () => _onAddRoutineBottomSheet(
+                                    currentWorkoutList[index].key),
                               );
                             },
                           ),
                         ),
                       ],
                     ),
-                    SingleChildScrollView(
-                      child: Column(
-                        children: addedWorkoutList.map(
-                          (e) {
-                            return Container(
-                              color: AppColor.grey2,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(e.name),
-                                  GestureDetector(
-                                    onTap: () => _removeWorkoutToList(e.name),
-                                    child: const Icon(Icons.delete),
-                                  )
-                                ],
-                              ),
-                            );
-                          },
-                        ).toList(),
-                      ),
+                    const Center(
+                      child: Text("sadf"),
                     ),
                   ],
                 ),
@@ -177,28 +174,20 @@ class _RoutineCreateState extends State<RoutineCreate> {
 
 class _WorkoutContainer extends StatefulWidget {
   final MapEntry<String, Map<String, dynamic>> workout;
-  final Function(String) onPressed;
+  final VoidCallback onTap;
 
   const _WorkoutContainer(
-      {super.key, required this.workout, required this.onPressed});
+      {super.key, required this.workout, required this.onTap});
 
   @override
   State<_WorkoutContainer> createState() => __WorkoutContainerState();
 }
 
 class __WorkoutContainerState extends State<_WorkoutContainer> {
-  bool _updateToggle = false;
-
-  void _setUpdateToggle() {
-    setState(() {
-      _updateToggle = !_updateToggle;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _setUpdateToggle,
+      onTap: widget.onTap,
       child: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -248,24 +237,6 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
                       ],
                     ),
                     const Icon(Icons.favorite_border)
-                  ],
-                ),
-              ),
-              AnimatedContainer(
-                width: double.infinity,
-                height: _updateToggle ? 60 : 0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: PrimaryBtn(
-                        label: "루틴에 추가하기",
-                        onPressed: () => widget.onPressed(widget.workout.key),
-                        widgetColor: WidgetColor.appColor,
-                        widgetSize: WidgetSize.small,
-                      ),
-                    )
                   ],
                 ),
               ),

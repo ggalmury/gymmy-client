@@ -14,9 +14,16 @@ class ScreenUtil {
       showDragHandle: true,
       builder: (ctx) {
         return SafeArea(
-          child: SizedBox(
-            height: height ?? MediaQuery.of(context).size.height * 0.8,
-            child: child,
+          child: GestureDetector(
+            onTap: keyboardOff,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: SizedBox(
+                height: height ?? MediaQuery.of(context).size.height * 0.8,
+                child: child,
+              ),
+            ),
           ),
         );
       },
@@ -40,6 +47,10 @@ class ScreenUtil {
         );
       },
     );
+  }
+
+  static void keyboardOff() {
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   static Widget svgFactory(String name, double size,
