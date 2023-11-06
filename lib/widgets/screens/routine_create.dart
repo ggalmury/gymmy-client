@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gymmy_client/bloc/routine_bloc.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/constant.dart';
+import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/screen_util.dart';
+import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/toggle_btn.dart';
 import 'package:gymmy_client/widgets/atoms/inputs/search_input.dart';
 import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
 import 'package:gymmy_client/widgets/molecules/app_tabbar.dart';
-import 'package:gymmy_client/widgets/organisms/modify_routine.dart';
+import 'package:gymmy_client/widgets/molecules/modify_sets_row.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
 
 class RoutineCreate extends StatefulWidget {
-  const RoutineCreate({super.key});
+  final DateTime date;
+
+  const RoutineCreate({super.key, required this.date});
 
   @override
   State<RoutineCreate> createState() => _RoutineCreateState();
@@ -32,14 +38,14 @@ class _RoutineCreateState extends State<RoutineCreate> {
     core
   ];
 
-  late TextEditingController textEditingController;
-  late List<MapEntry<String, Map<String, dynamic>>> currentWorkoutList;
-  late String currentTarget;
+  late TextEditingController _textEditingController;
+  late List<MapEntry<String, Map<String, dynamic>>> _currentWorkoutList;
+  late String _currentTarget;
 
   void _setCurrentWorkoutList(String t) {
     setState(() {
-      currentTarget = t;
-      currentWorkoutList = t == _targets[0]
+      _currentTarget = t;
+      _currentWorkoutList = t == _targets[0]
           ? workouts.entries.toList()
           : workouts.entries
               .where((entry) =>
@@ -49,7 +55,9 @@ class _RoutineCreateState extends State<RoutineCreate> {
   }
 
   void _pushWorkoutToList(Workout w) {
-    // TODO: implement
+    context
+        .read<RoutineBloc>()
+        .add(CreateRoutineEvent(date: widget.date, workout: w));
 
     showDialog(
       context: context,
@@ -61,25 +69,12 @@ class _RoutineCreateState extends State<RoutineCreate> {
     );
   }
 
-  void _removeWorkoutToList(String w) {
-    // TODO: implement
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertModal(
-        title: "루틴이 되었습니다.",
-        subTitle: w,
-        submitBtnLabel: "확인",
-      ),
-    );
-  }
-
-  void _onAddRoutineBottomSheet(String n) {
+  void _openBottomSheet(String n) {
     // TODO: exception handling
 
     ScreenUtil.bottomSheetHandler(
       context,
-      ModifyRoutine(
+      _BottomSheetBody(
         workout: Workout(name: n),
         onSubmit: _pushWorkoutToList,
       ),
@@ -90,14 +85,14 @@ class _RoutineCreateState extends State<RoutineCreate> {
   @override
   void initState() {
     super.initState();
-    textEditingController = TextEditingController();
-    currentTarget = _targets[0];
-    currentWorkoutList = workouts.entries.toList();
+    _textEditingController = TextEditingController();
+    _currentTarget = _targets[0];
+    _currentWorkoutList = workouts.entries.toList();
   }
 
   @override
   void dispose() {
-    textEditingController.dispose();
+    _textEditingController.dispose();
     super.dispose();
   }
 
@@ -119,7 +114,7 @@ class _RoutineCreateState extends State<RoutineCreate> {
                     Column(
                       children: [
                         SearchInput(
-                          controller: textEditingController,
+                          controller: _textEditingController,
                           prefixIcon: Icons.search,
                           hintText: "추가하고 싶은 운동을 검색해 주세요.",
                         ),
@@ -134,7 +129,7 @@ class _RoutineCreateState extends State<RoutineCreate> {
                                     padding: const EdgeInsets.only(right: 10),
                                     child: ToggleBtn(
                                       label: t,
-                                      toggle: currentTarget == t,
+                                      toggle: _currentTarget == t,
                                       onPressed: () =>
                                           _setCurrentWorkoutList(t),
                                     ),
@@ -146,12 +141,11 @@ class _RoutineCreateState extends State<RoutineCreate> {
                         ),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: currentWorkoutList.length,
+                            itemCount: _currentWorkoutList.length,
                             itemBuilder: (context, index) {
                               return _WorkoutContainer(
-                                workout: currentWorkoutList[index],
-                                onTap: () => _onAddRoutineBottomSheet(
-                                    currentWorkoutList[index].key),
+                                workout: _currentWorkoutList[index],
+                                onTap: _openBottomSheet,
                               );
                             },
                           ),
@@ -172,22 +166,17 @@ class _RoutineCreateState extends State<RoutineCreate> {
   }
 }
 
-class _WorkoutContainer extends StatefulWidget {
+class _WorkoutContainer extends StatelessWidget {
   final MapEntry<String, Map<String, dynamic>> workout;
-  final VoidCallback onTap;
+  final Function(String) onTap;
 
   const _WorkoutContainer(
       {super.key, required this.workout, required this.onTap});
 
   @override
-  State<_WorkoutContainer> createState() => __WorkoutContainerState();
-}
-
-class __WorkoutContainerState extends State<_WorkoutContainer> {
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: () => onTap(workout.key),
       child: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -218,7 +207,7 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
                             padding: const EdgeInsets.all(10),
                             child: ClipRect(
                               child: Image.asset(
-                                "assets/images/exercise/${widget.workout.value["imgSrc"]}.png",
+                                "assets/images/exercise/${workout.value["imgSrc"]}.png",
                                 width: 50,
                                 height: 50,
                               ),
@@ -227,7 +216,7 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
                         ),
                         const SizedBox(width: 15),
                         Text(
-                          widget.workout.key,
+                          workout.key,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -236,13 +225,94 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
                         )
                       ],
                     ),
-                    const Icon(Icons.favorite_border)
+                    const Icon(Icons.add)
                   ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _BottomSheetBody extends StatefulWidget {
+  final Workout workout;
+  final Function(Workout) onSubmit;
+
+  const _BottomSheetBody(
+      {super.key, required this.workout, required this.onSubmit});
+
+  @override
+  State<_BottomSheetBody> createState() => __BottomSheetBodyState();
+}
+
+class __BottomSheetBodyState extends State<_BottomSheetBody> {
+  late List<TextEditingController> _countControllers;
+  late List<TextEditingController> _weightControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _countControllers = List.generate(
+        widget.workout.sets.length,
+        (index) => TextEditingController(
+            text: widget.workout.sets[index].count.toString()));
+    _weightControllers = List.generate(
+        widget.workout.sets.length,
+        (index) => TextEditingController(
+            text: widget.workout.sets[index].weight.toString()));
+  }
+
+  @override
+  void dispose() {
+    for (TextEditingController c in _countControllers) {
+      c.dispose();
+    }
+
+    for (TextEditingController c in _weightControllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.workout.name,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: List.generate(
+                  widget.workout.sets.length,
+                  (idx) => ModifySetsRow(
+                    setCount: idx,
+                    sets: widget.workout.sets[idx],
+                    countController: _countControllers[idx],
+                    weightController: _weightControllers[idx],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          PrimaryBtn(
+            label: "추가하기",
+            onPressed: () => widget.onSubmit(widget.workout),
+            widgetColor: WidgetColor.appColor,
+            widgetSize: WidgetSize.big,
+          )
+        ],
       ),
     );
   }

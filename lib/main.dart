@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gymmy_client/bloc/routine_bloc.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/widgets/screens/index.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -19,25 +21,32 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ko'),
-      ],
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          foregroundColor: AppColor.appColor,
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => RoutineBloc(),
         ),
+      ],
+      child: MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('ko'),
+        ],
+        theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: AppColor.appColor,
+            systemOverlayStyle: SystemUiOverlayStyle.dark,
+          ),
+        ),
+        home: const Index(),
       ),
-      home: const Index(),
     );
   }
 }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gymmy_client/bloc/routine_bloc.dart';
+import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/constant.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
+import 'package:gymmy_client/utils/helper/date_util.dart';
 import 'package:gymmy_client/utils/helper/screen_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
@@ -106,7 +110,7 @@ class _RoutineState extends State<Routine> {
                       label: "자세히 보기",
                       onPressed: () => ScreenUtil.bottomSheetHandler(
                         context,
-                        _BottomSheetBody(),
+                        _BottomSheetBody(date: selectedDate),
                       ),
                       widgetColor: WidgetColor.appColor,
                       widgetSize: WidgetSize.big,
@@ -123,9 +127,9 @@ class _RoutineState extends State<Routine> {
 }
 
 class _BottomSheetBody extends StatelessWidget {
-  final List<String> workOutList = ["벤치 프레스", "데드리프트", "스쿼트"];
+  final DateTime date;
 
-  _BottomSheetBody({super.key});
+  const _BottomSheetBody({super.key, required this.date});
 
   @override
   Widget build(BuildContext context) {
@@ -141,16 +145,22 @@ class _BottomSheetBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         children: [
-                          TextSpan(text: "오늘은 "),
                           TextSpan(
-                            text: "가슴",
+                            text: DateUtil.compareTo(DateTime.now(), date)
+                                ? "오늘"
+                                : DateFormat("M월 d일").format(date),
+                            style: const TextStyle(color: AppColor.appColor),
+                          ),
+                          const TextSpan(text: "은"),
+                          const TextSpan(
+                            text: " 가슴",
                             style: TextStyle(color: AppColor.appColor),
                           ),
-                          TextSpan(text: " 하는날🔥"),
+                          const TextSpan(text: " 하는날🔥"),
                         ],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -199,11 +209,11 @@ class _BottomSheetBody extends StatelessWidget {
                     const SizedBox(height: 40),
                     PrimaryBtn(
                       label: "루틴 추가하기",
-                      onPressed: () => Navigator.push<void>(
+                      onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute<void>(
+                        MaterialPageRoute(
                           builder: (BuildContext context) =>
-                              const RoutineCreate(),
+                              RoutineCreate(date: date),
                         ),
                       ),
                       widgetColor: WidgetColor.appColor,
@@ -216,28 +226,35 @@ class _BottomSheetBody extends StatelessWidget {
           ];
         },
         body: SingleChildScrollView(
-          child: Column(
-            children: List.generate(
-              workOutList.length,
-              (index) {
-                return Column(
-                  children: [
-                    _PlanContainer(
-                      workoutName: workOutList[index],
-                      onUpdate: () {},
-                      onDelete: () => showDialog(
-                        context: context,
-                        builder: (context) => const AlertModal(
-                          title: "루틴을 삭제할까요?",
-                          cancelable: true,
+          child: BlocBuilder<RoutineBloc, RoutineState>(
+            builder: (context, state) {
+              List<Workout> workoutList =
+                  state.routine[DateUtil.formatToYMD(date)]?.workouts ?? [];
+
+              return Column(
+                children: List.generate(
+                  workoutList.length,
+                  (idx) {
+                    return Column(
+                      children: [
+                        _PlanContainer(
+                          workoutName: workoutList[idx].name,
+                          onUpdate: () {},
+                          onDelete: () => showDialog(
+                            context: context,
+                            builder: (context) => const AlertModal(
+                              title: "루틴을 삭제할까요?",
+                              cancelable: true,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                );
-              },
-            ),
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  },
+                ),
+              );
+            },
           ),
         ),
       ),

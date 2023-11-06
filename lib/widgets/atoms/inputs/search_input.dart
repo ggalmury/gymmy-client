@@ -17,6 +17,7 @@ class SearchInput extends StatelessWidget {
         color: AppColor.grey2,
       ),
     );
+
     return TextField(
       controller: controller,
       style: const TextStyle(fontSize: 14),

@@ -10,7 +10,7 @@ class Index extends StatefulWidget {
 }
 
 class _IndexState extends State<Index> {
-  final List<Widget> _screens = <Widget>[
+  final List<Widget> _screens = [
     const Home(),
     const Routine(),
   ];
@@ -30,7 +30,7 @@ class _IndexState extends State<Index> {
         children: _screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.abc),
             label: "홈",

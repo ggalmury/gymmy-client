@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'plan.dart';
+part of 'routine.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Plan _$PlanFromJson(Map<String, dynamic> json) => Plan(
+Routine _$RoutineFromJson(Map<String, dynamic> json) => Routine(
       date: DateTime.parse(json['date'] as String),
       target: json['target'] as String,
       workouts: (json['workouts'] as List<dynamic>)
@@ -14,7 +14,7 @@ Plan _$PlanFromJson(Map<String, dynamic> json) => Plan(
           .toList(),
     );
 
-Map<String, dynamic> _$PlanToJson(Plan instance) => <String, dynamic>{
+Map<String, dynamic> _$RoutineToJson(Routine instance) => <String, dynamic>{
       'date': instance.date.toIso8601String(),
       'target': instance.target,
       'workouts': instance.workouts,

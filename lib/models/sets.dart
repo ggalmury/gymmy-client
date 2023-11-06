@@ -4,8 +4,8 @@ part 'sets.g.dart';
 
 @JsonSerializable()
 class Sets {
-  int count = 0;
-  int weight = 0;
+  int count = 10;
+  int weight = 10;
 
   Sets();
 
