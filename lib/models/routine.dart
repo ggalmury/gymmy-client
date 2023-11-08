@@ -11,6 +11,18 @@ class Routine {
 
   Routine({required this.date, required this.target, required this.workouts});
 
+  Routine copyWith({
+    DateTime? date,
+    String? target,
+    List<Workout>? workouts,
+  }) {
+    return Routine(
+      date: date ?? this.date,
+      target: target ?? this.target,
+      workouts: workouts ?? this.workouts,
+    );
+  }
+
   factory Routine.fromJson(Map<String, dynamic> json) =>
       _$RoutineFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineToJson(this);

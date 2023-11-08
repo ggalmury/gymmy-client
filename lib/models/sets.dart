@@ -4,10 +4,14 @@ part 'sets.g.dart';
 
 @JsonSerializable()
 class Sets {
-  int count = 10;
-  int weight = 10;
+  final int count;
+  final int weight;
 
-  Sets();
+  Sets({required this.count, required this.weight});
+
+  Sets copyWith({int? count, int? weight}) {
+    return Sets(count: count ?? this.count, weight: weight ?? this.weight);
+  }
 
   factory Sets.fromJson(Map<String, dynamic> json) => _$SetsFromJson(json);
   Map<String, dynamic> toJson() => _$SetsToJson(this);

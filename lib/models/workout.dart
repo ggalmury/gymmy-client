@@ -8,7 +8,12 @@ class Workout {
   final String name;
   final List<Sets> sets;
 
-  Workout({required this.name, List<Sets>? sets}) : sets = sets ?? [Sets()];
+  Workout({required this.name, List<Sets>? sets})
+      : sets = sets ?? [Sets(count: 10, weight: 10)];
+
+  Workout copyWith({List<Sets>? sets}) {
+    return Workout(name: name, sets: sets ?? this.sets);
+  }
 
   factory Workout.fromJson(Map<String, dynamic> json) =>
       _$WorkoutFromJson(json);

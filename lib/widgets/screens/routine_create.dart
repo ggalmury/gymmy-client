@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymmy_client/bloc/routine_bloc.dart';
+import 'package:gymmy_client/models/routine.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/constant.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
-import 'package:gymmy_client/utils/helper/screen_util.dart';
+import 'package:gymmy_client/utils/helper/date_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/toggle_btn.dart';
 import 'package:gymmy_client/widgets/atoms/inputs/search_input.dart';
 import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
 import 'package:gymmy_client/widgets/molecules/app_tabbar.dart';
-import 'package:gymmy_client/widgets/molecules/modify_sets_row.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
 
 class RoutineCreate extends StatefulWidget {
@@ -24,7 +24,7 @@ class RoutineCreate extends StatefulWidget {
 }
 
 class _RoutineCreateState extends State<RoutineCreate> {
-  final List<String> _tabBar = ["루틴 목록", "오늘의 플랜"];
+  final List<String> _tabBar = ["운동 목록", "오늘의 플랜"];
   final List<String> _targets = [
     "전체",
     wholeBody,
@@ -52,34 +52,6 @@ class _RoutineCreateState extends State<RoutineCreate> {
                   (entry.value['target'] as List<String>).contains(t))
               .toList();
     });
-  }
-
-  void _pushWorkoutToList(Workout w) {
-    context
-        .read<RoutineBloc>()
-        .add(CreateRoutineEvent(date: widget.date, workout: w));
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertModal(
-        title: "루틴이 추가되었습니다.",
-        subTitle: w.name,
-        submitBtnLabel: "확인",
-      ),
-    );
-  }
-
-  void _openBottomSheet(String n) {
-    // TODO: exception handling
-
-    ScreenUtil.bottomSheetHandler(
-      context,
-      _BottomSheetBody(
-        workout: Workout(name: n),
-        onSubmit: _pushWorkoutToList,
-      ),
-      height: 400,
-    );
   }
 
   @override
@@ -145,7 +117,7 @@ class _RoutineCreateState extends State<RoutineCreate> {
                             itemBuilder: (context, index) {
                               return _WorkoutContainer(
                                 workout: _currentWorkoutList[index],
-                                onTap: _openBottomSheet,
+                                date: widget.date,
                               );
                             },
                           ),
@@ -166,17 +138,67 @@ class _RoutineCreateState extends State<RoutineCreate> {
   }
 }
 
-class _WorkoutContainer extends StatelessWidget {
+class _WorkoutContainer extends StatefulWidget {
   final MapEntry<String, Map<String, dynamic>> workout;
-  final Function(String) onTap;
+  final DateTime date;
 
   const _WorkoutContainer(
-      {super.key, required this.workout, required this.onTap});
+      {super.key, required this.workout, required this.date});
+
+  @override
+  State<_WorkoutContainer> createState() => __WorkoutContainerState();
+}
+
+class __WorkoutContainerState extends State<_WorkoutContainer> {
+  bool _updateToggle = false;
+
+  void _setUpdateToggle() {
+    setState(() {
+      _updateToggle = !_updateToggle;
+    });
+  }
+
+  void _pushWorkoutToList() {
+    Routine? state = context
+        .read<RoutineBloc>()
+        .state
+        .routine[DateUtil.formatToYMD(widget.date)];
+
+    if (state != null &&
+        state.workouts.where((e) => e.name == widget.workout.key).isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertModal(
+          title: "이미 추가된 루틴입니다.",
+          subTitle: widget.workout.key,
+          submitBtnLabel: "확인",
+        ),
+      );
+
+      return;
+    }
+
+    context.read<RoutineBloc>().add(
+          CreateRoutineEvent(
+            date: widget.date,
+            workout: Workout(name: widget.workout.key),
+          ),
+        );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertModal(
+        title: "루틴이 추가되었습니다.",
+        subTitle: widget.workout.key,
+        submitBtnLabel: "확인",
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onTap(workout.key),
+      onTap: _setUpdateToggle,
       child: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -207,7 +229,7 @@ class _WorkoutContainer extends StatelessWidget {
                             padding: const EdgeInsets.all(10),
                             child: ClipRect(
                               child: Image.asset(
-                                "assets/images/exercise/${workout.value["imgSrc"]}.png",
+                                "assets/images/exercise/${widget.workout.value["imgSrc"]}.png",
                                 width: 50,
                                 height: 50,
                               ),
@@ -216,7 +238,7 @@ class _WorkoutContainer extends StatelessWidget {
                         ),
                         const SizedBox(width: 15),
                         Text(
-                          workout.key,
+                          widget.workout.key,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -229,90 +251,27 @@ class _WorkoutContainer extends StatelessWidget {
                   ],
                 ),
               ),
+              AnimatedContainer(
+                width: double.infinity,
+                height: _updateToggle ? 60 : 0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryBtn(
+                        label: "루틴에 추가하기",
+                        onPressed: _pushWorkoutToList,
+                        widgetColor: WidgetColor.appColor,
+                        widgetSize: WidgetSize.small,
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _BottomSheetBody extends StatefulWidget {
-  final Workout workout;
-  final Function(Workout) onSubmit;
-
-  const _BottomSheetBody(
-      {super.key, required this.workout, required this.onSubmit});
-
-  @override
-  State<_BottomSheetBody> createState() => __BottomSheetBodyState();
-}
-
-class __BottomSheetBodyState extends State<_BottomSheetBody> {
-  late List<TextEditingController> _countControllers;
-  late List<TextEditingController> _weightControllers;
-
-  @override
-  void initState() {
-    super.initState();
-    _countControllers = List.generate(
-        widget.workout.sets.length,
-        (index) => TextEditingController(
-            text: widget.workout.sets[index].count.toString()));
-    _weightControllers = List.generate(
-        widget.workout.sets.length,
-        (index) => TextEditingController(
-            text: widget.workout.sets[index].weight.toString()));
-  }
-
-  @override
-  void dispose() {
-    for (TextEditingController c in _countControllers) {
-      c.dispose();
-    }
-
-    for (TextEditingController c in _weightControllers) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.workout.name,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: List.generate(
-                  widget.workout.sets.length,
-                  (idx) => ModifySetsRow(
-                    setCount: idx,
-                    sets: widget.workout.sets[idx],
-                    countController: _countControllers[idx],
-                    weightController: _weightControllers[idx],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          PrimaryBtn(
-            label: "추가하기",
-            onPressed: () => widget.onSubmit(widget.workout),
-            widgetColor: WidgetColor.appColor,
-            widgetSize: WidgetSize.big,
-          )
-        ],
       ),
     );
   }

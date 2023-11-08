@@ -19,7 +19,9 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
       copiedState[date] =
           Routine(date: event.date, target: "가슴", workouts: [event.workout]);
     } else {
-      copiedState[date]!.workouts.add(event.workout);
+      List<Workout> copiedWorkouts = copiedState[date]!.workouts;
+      copiedWorkouts.add(event.workout);
+      copiedState[date] = copiedState[date]!.copyWith(workouts: copiedWorkouts);
     }
 
     emit(CurrentRoutinState(routine: copiedState));

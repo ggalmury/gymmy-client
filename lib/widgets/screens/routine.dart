@@ -12,6 +12,7 @@ import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
 import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
 import 'package:gymmy_client/widgets/molecules/svg_row.dart';
 import 'package:gymmy_client/widgets/organisms/app_calendar.dart';
+import 'package:gymmy_client/widgets/organisms/modify_sets_dialog.dart';
 import 'package:gymmy_client/widgets/screens/routine_create.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
 import 'package:intl/intl.dart';
@@ -228,32 +229,29 @@ class _BottomSheetBody extends StatelessWidget {
         body: SingleChildScrollView(
           child: BlocBuilder<RoutineBloc, RoutineState>(
             builder: (context, state) {
-              List<Workout> workoutList =
-                  state.routine[DateUtil.formatToYMD(date)]?.workouts ?? [];
+              List<Workout>? workoutList =
+                  state.routine[DateUtil.formatToYMD(date)]?.workouts;
 
-              return Column(
-                children: List.generate(
-                  workoutList.length,
-                  (idx) {
-                    return Column(
-                      children: [
-                        _PlanContainer(
-                          workoutName: workoutList[idx].name,
-                          onUpdate: () {},
-                          onDelete: () => showDialog(
-                            context: context,
-                            builder: (context) => const AlertModal(
-                              title: "루틴을 삭제할까요?",
-                              cancelable: true,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+              return workoutList != null
+                  ? Column(
+                      children: List.generate(
+                        workoutList.length,
+                        (idx) {
+                          return Column(
+                            children: [
+                              _PlanContainer(
+                                workoutName: workoutList[idx].name,
+                                date: date,
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          );
+                        },
+                      ),
+                    )
+                  : const Center(
+                      child: Text("아직 계획된 루틴이 없어요😢"),
                     );
-                  },
-                ),
-              );
             },
           ),
         ),
@@ -264,14 +262,10 @@ class _BottomSheetBody extends StatelessWidget {
 
 class _PlanContainer extends StatefulWidget {
   final String workoutName;
-  final VoidCallback onUpdate;
-  final VoidCallback onDelete;
+  final DateTime date;
 
   const _PlanContainer(
-      {super.key,
-      required this.workoutName,
-      required this.onUpdate,
-      required this.onDelete});
+      {super.key, required this.workoutName, required this.date});
 
   @override
   State<_PlanContainer> createState() => __PlanContainerState();
@@ -284,6 +278,26 @@ class __PlanContainerState extends State<_PlanContainer> {
     setState(() {
       _updateToggle = !_updateToggle;
     });
+  }
+
+  void _onModify() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "",
+      pageBuilder: (context, _, __) =>
+          ModifySetsDialog(workoutName: widget.workoutName, date: widget.date),
+    );
+  }
+
+  void _onDelete() {
+    showDialog(
+      context: context,
+      builder: (context) => const AlertModal(
+        title: "루틴을 삭제할까요?",
+        cancelable: true,
+      ),
+    );
   }
 
   @override
@@ -383,7 +397,7 @@ class __PlanContainerState extends State<_PlanContainer> {
                     Expanded(
                       child: TextBtn(
                         label: "삭제",
-                        onPressed: widget.onDelete,
+                        onPressed: _onDelete,
                         fontColor: Colors.red,
                       ),
                     ),
@@ -391,7 +405,7 @@ class __PlanContainerState extends State<_PlanContainer> {
                     Expanded(
                       child: PrimaryBtn(
                         label: "정보",
-                        onPressed: widget.onUpdate,
+                        onPressed: _onModify,
                         widgetColor: WidgetColor.appColor,
                         widgetSize: WidgetSize.small,
                       ),
