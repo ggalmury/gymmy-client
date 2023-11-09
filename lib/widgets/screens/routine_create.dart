@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymmy_client/bloc/routine_bloc.dart';
+import 'package:gymmy_client/bloc/selected_date_bloc.dart';
 import 'package:gymmy_client/models/routine.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
@@ -15,9 +16,7 @@ import 'package:gymmy_client/widgets/molecules/app_tabbar.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
 
 class RoutineCreate extends StatefulWidget {
-  final DateTime date;
-
-  const RoutineCreate({super.key, required this.date});
+  const RoutineCreate({super.key});
 
   @override
   State<RoutineCreate> createState() => _RoutineCreateState();
@@ -116,9 +115,7 @@ class _RoutineCreateState extends State<RoutineCreate> {
                             itemCount: _currentWorkoutList.length,
                             itemBuilder: (context, index) {
                               return _WorkoutContainer(
-                                workout: _currentWorkoutList[index],
-                                date: widget.date,
-                              );
+                                  workout: _currentWorkoutList[index]);
                             },
                           ),
                         ),
@@ -140,10 +137,8 @@ class _RoutineCreateState extends State<RoutineCreate> {
 
 class _WorkoutContainer extends StatefulWidget {
   final MapEntry<String, Map<String, dynamic>> workout;
-  final DateTime date;
 
-  const _WorkoutContainer(
-      {super.key, required this.workout, required this.date});
+  const _WorkoutContainer({super.key, required this.workout});
 
   @override
   State<_WorkoutContainer> createState() => __WorkoutContainerState();
@@ -159,10 +154,10 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
   }
 
   void _pushWorkoutToList() {
-    Routine? state = context
-        .read<RoutineBloc>()
-        .state
-        .routine[DateUtil.formatToYMD(widget.date)];
+    DateTime date = context.read<SelectedDateBloc>().state.selectedDate;
+
+    Routine? state =
+        context.read<RoutineBloc>().state.routine[DateUtil.formatToYMD(date)];
 
     if (state != null &&
         state.workouts.where((e) => e.name == widget.workout.key).isNotEmpty) {
@@ -180,7 +175,7 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
 
     context.read<RoutineBloc>().add(
           CreateRoutineEvent(
-            date: widget.date,
+            date: date,
             workout: Workout(name: widget.workout.key),
           ),
         );

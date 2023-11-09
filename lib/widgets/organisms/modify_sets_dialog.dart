@@ -1,56 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymmy_client/bloc/routine_bloc.dart';
+import 'package:gymmy_client/bloc/selected_date_bloc.dart';
 import 'package:gymmy_client/models/sets.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
-import 'package:gymmy_client/utils/helper/date_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/inputs/dynamic_input.dart';
 import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
 
 class ModifySetsDialog extends StatefulWidget {
-  final String workoutName;
-  final DateTime date;
+  final Workout workout;
 
-  const ModifySetsDialog(
-      {super.key, required this.workoutName, required this.date});
+  const ModifySetsDialog({super.key, required this.workout});
 
   @override
   State<ModifySetsDialog> createState() => _ModifySetsDialogState();
 }
 
 class _ModifySetsDialogState extends State<ModifySetsDialog> {
-  late Workout workout;
+  late List<Sets> sets;
   late List<TextEditingController> _countControllers;
   late List<TextEditingController> _weightControllers;
 
   void _createSet() {
     setState(() {
-      workout.sets.add(Sets(count: 10, weight: 10));
+      sets.add(Sets(count: 10, weight: 10));
 
       _countControllers
-          .add(TextEditingController(text: workout.sets.last.count.toString()));
-      _weightControllers.add(
-          TextEditingController(text: workout.sets.last.weight.toString()));
+          .add(TextEditingController(text: sets.last.count.toString()));
+
+      _weightControllers
+          .add(TextEditingController(text: sets.last.weight.toString()));
     });
   }
 
   void _deleteSet(int idx) {
     setState(() {
-      workout.sets.removeAt(idx);
+      sets.removeAt(idx);
       _countControllers.removeAt(idx);
       _weightControllers.removeAt(idx);
     });
   }
 
   void _submit() {
-    List<Sets> sets = [];
+    List<Sets> copiedSets = [];
 
-    for (int i = 0; i < workout.sets.length; i++) {
+    for (int i = 0; i < sets.length; i++) {
       try {
-        sets.add(Sets(
+        copiedSets.add(Sets(
             count: int.parse(_countControllers[i].text),
             weight: int.parse(_weightControllers[i].text)));
       } on FormatException {
@@ -65,8 +64,13 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
         return;
       }
     }
+    print(copiedSets);
+    Workout modifiedWorkout = widget.workout.copyWith(sets: copiedSets);
+    DateTime date = context.read<SelectedDateBloc>().state.selectedDate;
 
-    // TODO: update routine
+    context
+        .read<RoutineBloc>()
+        .add(ModifyRoutineEvent(date: date, workout: modifiedWorkout));
 
     Navigator.pop(context);
   }
@@ -74,21 +78,13 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
   @override
   void initState() {
     super.initState();
-    workout = context
-        .read<RoutineBloc>()
-        .state
-        .routine[DateUtil.formatToYMD(widget.date)]!
-        .workouts
-        .firstWhere((e) => e.name == widget.workoutName);
 
-    _countControllers = List.generate(
-        workout.sets.length,
-        (index) =>
-            TextEditingController(text: workout.sets[index].count.toString()));
-    _weightControllers = List.generate(
-        workout.sets.length,
-        (index) =>
-            TextEditingController(text: workout.sets[index].weight.toString()));
+    sets = List.from(widget.workout.sets);
+
+    _countControllers = List.generate(sets.length,
+        (index) => TextEditingController(text: sets[index].count.toString()));
+    _weightControllers = List.generate(sets.length,
+        (index) => TextEditingController(text: sets[index].weight.toString()));
   }
 
   @override
@@ -126,7 +122,7 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        workout.name,
+                        widget.workout.name,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -145,11 +141,11 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: List.generate(
-                        workout.sets.length,
+                        sets.length,
                         (index) {
                           return _ModifyRow(
                             index: index,
-                            sets: workout.sets[index],
+                            sets: sets[index],
                             countController: _countControllers[index],
                             weightController: _weightControllers[index],
                             onDelete: _deleteSet,
@@ -161,7 +157,7 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
                 ),
                 PrimaryBtn(
                   label: "확인",
-                  onPressed: () => _submit(),
+                  onPressed: _submit,
                   widgetColor: WidgetColor.appColor,
                   widgetSize: WidgetSize.big,
                 )

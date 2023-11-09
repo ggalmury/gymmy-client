@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymmy_client/bloc/routine_bloc.dart';
+import 'package:gymmy_client/bloc/selected_date_bloc.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/widgets/screens/index.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,6 +24,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (context) => SelectedDateBloc(),
+        ),
         BlocProvider(
           create: (context) => RoutineBloc(),
         ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:gymmy_client/bloc/routine_bloc.dart';
+import 'package:gymmy_client/bloc/selected_date_bloc.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/constant.dart';
@@ -15,23 +17,9 @@ import 'package:gymmy_client/widgets/organisms/app_calendar.dart';
 import 'package:gymmy_client/widgets/organisms/modify_sets_dialog.dart';
 import 'package:gymmy_client/widgets/screens/routine_create.dart';
 import 'package:gymmy_client/widgets/templates/base.dart';
-import 'package:intl/intl.dart';
 
-class Routine extends StatefulWidget {
+class Routine extends StatelessWidget {
   const Routine({super.key});
-
-  @override
-  State<Routine> createState() => _RoutineState();
-}
-
-class _RoutineState extends State<Routine> {
-  DateTime selectedDate = DateTime.now();
-
-  void _onDaySelected(DateTime s) {
-    setState(() {
-      selectedDate = s;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +27,7 @@ class _RoutineState extends State<Routine> {
       title: "데일리 루틴",
       child: Column(
         children: [
-          AppCalendar(
-            selectedDate: selectedDate,
-            onDaySelected: _onDaySelected,
-          ),
+          const AppCalendar(),
           const SizedBox(height: 20),
           Expanded(
             child: Container(
@@ -54,69 +39,70 @@ class _RoutineState extends State<Routine> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: RichText(
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text:
-                                      DateFormat("MM.dd").format(selectedDate),
+                child: BlocBuilder<SelectedDateBloc, SelectedDateState>(
+                  builder: (context, state) => Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Align(
+                              alignment: Alignment.centerLeft,
+                              child: RichText(
+                                text: TextSpan(
                                   style: const TextStyle(
-                                    color: AppColor.appColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
                                   ),
+                                  children: [
+                                    TextSpan(
+                                      text: DateFormat("MM.dd")
+                                          .format(state.selectedDate),
+                                      style: const TextStyle(
+                                        color: AppColor.appColor,
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: " 의 운동",
+                                    ),
+                                  ],
                                 ),
-                                const TextSpan(
-                                  text: " 의 운동",
-                                ),
-                              ],
+                              )),
+                          const Text(
+                            "진행중🔥",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
-                        ),
-                        const Text(
-                          "진행중🔥",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        SvgRow(
-                          label: "헬스",
-                          svgName: "dumbell",
-                        ),
-                        SvgRow(
-                          label: "1시간",
-                          svgName: "clock",
-                        ),
-                      ],
-                    ),
-                    PrimaryBtn(
-                      label: "자세히 보기",
-                      onPressed: () => ScreenUtil.bottomSheetHandler(
-                        context,
-                        _BottomSheetBody(date: selectedDate),
+                        ],
                       ),
-                      widgetColor: WidgetColor.appColor,
-                      widgetSize: WidgetSize.big,
-                    )
-                  ],
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SvgRow(
+                            label: "헬스",
+                            svgName: "dumbell",
+                          ),
+                          SvgRow(
+                            label: "1시간",
+                            svgName: "clock",
+                          ),
+                        ],
+                      ),
+                      PrimaryBtn(
+                        label: "자세히 보기",
+                        onPressed: () => ScreenUtil.bottomSheetHandler(
+                          context,
+                          const _BottomSheetBody(),
+                        ),
+                        widgetColor: WidgetColor.appColor,
+                        widgetSize: WidgetSize.big,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -128,131 +114,134 @@ class _RoutineState extends State<Routine> {
 }
 
 class _BottomSheetBody extends StatelessWidget {
-  final DateTime date;
-
-  const _BottomSheetBody({super.key, required this.date});
+  const _BottomSheetBody({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 10, bottom: 30),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: DateUtil.compareTo(DateTime.now(), date)
-                                ? "오늘"
-                                : DateFormat("M월 d일").format(date),
-                            style: const TextStyle(color: AppColor.appColor),
+      child: BlocBuilder<SelectedDateBloc, SelectedDateState>(
+        builder: (context, dateState) => NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: DateUtil.compareTo(
+                                      DateTime.now(), dateState.selectedDate)
+                                  ? "오늘"
+                                  : DateFormat("M월 d일")
+                                      .format(dateState.selectedDate),
+                              style: const TextStyle(color: AppColor.appColor),
+                            ),
+                            const TextSpan(text: "은"),
+                            const TextSpan(
+                              text: " 가슴",
+                              style: TextStyle(color: AppColor.appColor),
+                            ),
+                            const TextSpan(text: " 하는날🔥"),
+                          ],
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                          const TextSpan(text: "은"),
-                          const TextSpan(
-                            text: " 가슴",
-                            style: TextStyle(color: AppColor.appColor),
-                          ),
-                          const TextSpan(text: " 하는날🔥"),
-                        ],
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "13:00",
-                            style: TextStyle(color: AppColor.appColor),
+                      const SizedBox(height: 20),
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "13:00",
+                              style: TextStyle(color: AppColor.appColor),
+                            ),
+                            TextSpan(text: " 부터 "),
+                            TextSpan(
+                              text: "14:00",
+                              style: TextStyle(color: AppColor.appColor),
+                            ),
+                            TextSpan(text: " 까지"),
+                          ],
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                          TextSpan(text: " 부터 "),
-                          TextSpan(
-                            text: "14:00",
-                            style: TextStyle(color: AppColor.appColor),
-                          ),
-                          TextSpan(text: " 까지"),
-                        ],
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "1시간",
-                            style: TextStyle(color: AppColor.appColor),
+                      const SizedBox(height: 5),
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "1시간",
+                              style: TextStyle(color: AppColor.appColor),
+                            ),
+                            TextSpan(text: " 동안 열심히 운동할 예정이에요."),
+                          ],
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                          TextSpan(text: " 동안 열심히 운동할 예정이에요."),
-                        ],
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 40),
-                    PrimaryBtn(
-                      label: "루틴 추가하기",
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              RoutineCreate(date: date),
+                      const SizedBox(height: 40),
+                      PrimaryBtn(
+                        label: "루틴 추가하기",
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const RoutineCreate(),
+                          ),
                         ),
-                      ),
-                      widgetColor: WidgetColor.appColor,
-                      widgetSize: WidgetSize.big,
-                    )
-                  ],
+                        widgetColor: WidgetColor.appColor,
+                        widgetSize: WidgetSize.big,
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ];
-        },
-        body: SingleChildScrollView(
-          child: BlocBuilder<RoutineBloc, RoutineState>(
-            builder: (context, state) {
-              List<Workout>? workoutList =
-                  state.routine[DateUtil.formatToYMD(date)]?.workouts;
+            ];
+          },
+          body: SingleChildScrollView(
+            child: BlocBuilder<RoutineBloc, RoutineState>(
+              builder: (context, state) {
+                // TODO: fix rendering issue
+                List<Workout>? workoutList = state
+                    .routine[DateUtil.formatToYMD(dateState.selectedDate)]
+                    ?.workouts;
 
-              return workoutList != null
-                  ? Column(
-                      children: List.generate(
-                        workoutList.length,
-                        (idx) {
-                          return Column(
-                            children: [
-                              _PlanContainer(
-                                workoutName: workoutList[idx].name,
-                                date: date,
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          );
-                        },
-                      ),
-                    )
-                  : const Center(
-                      child: Text("아직 계획된 루틴이 없어요😢"),
-                    );
-            },
+                return workoutList != null
+                    ? Column(
+                        children: List.generate(
+                          workoutList.length,
+                          (idx) {
+                            return Column(
+                              children: [
+                                _WorkoutContainer(
+                                  workout: workoutList[idx],
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            );
+                          },
+                        ),
+                      )
+                    : const Center(
+                        child: Text("아직 계획된 루틴이 없어요😢"),
+                      );
+              },
+            ),
           ),
         ),
       ),
@@ -260,18 +249,16 @@ class _BottomSheetBody extends StatelessWidget {
   }
 }
 
-class _PlanContainer extends StatefulWidget {
-  final String workoutName;
-  final DateTime date;
+class _WorkoutContainer extends StatefulWidget {
+  final Workout workout;
 
-  const _PlanContainer(
-      {super.key, required this.workoutName, required this.date});
+  const _WorkoutContainer({super.key, required this.workout});
 
   @override
-  State<_PlanContainer> createState() => __PlanContainerState();
+  State<_WorkoutContainer> createState() => __WorkoutContainerState();
 }
 
-class __PlanContainerState extends State<_PlanContainer> {
+class __WorkoutContainerState extends State<_WorkoutContainer> {
   bool _updateToggle = false;
 
   void _setUpdateToggle() {
@@ -286,7 +273,7 @@ class __PlanContainerState extends State<_PlanContainer> {
       barrierDismissible: true,
       barrierLabel: "",
       pageBuilder: (context, _, __) =>
-          ModifySetsDialog(workoutName: widget.workoutName, date: widget.date),
+          ModifySetsDialog(workout: widget.workout),
     );
   }
 
@@ -302,7 +289,7 @@ class __PlanContainerState extends State<_PlanContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> workOutValue = workouts[widget.workoutName]!;
+    final Map<String, dynamic> workOutValue = workouts[widget.workout.name]!;
 
     return GestureDetector(
       onTap: _setUpdateToggle,
@@ -338,7 +325,7 @@ class __PlanContainerState extends State<_PlanContainer> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.workoutName,
+                              widget.workout.name,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

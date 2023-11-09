@@ -7,7 +7,11 @@ import 'package:gymmy_client/utils/helper/date_util.dart';
 class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
   RoutineBloc() : super(InitRoutineState()) {
     on<RoutineEvent>((event, emit) {
-      if (event is CreateRoutineEvent) _createRoutine(event, emit);
+      if (event is CreateRoutineEvent) {
+        _createRoutine(event, emit);
+      } else if (event is ModifyRoutineEvent) {
+        _modifyRoutine(event, emit);
+      }
     });
   }
 
@@ -26,6 +30,17 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
 
     emit(CurrentRoutinState(routine: copiedState));
   }
+
+  void _modifyRoutine(ModifyRoutineEvent event, emit) {
+    Map<String, Routine> copiedState = Map.from(state.routine);
+    String date = DateUtil.formatToYMD(event.date);
+
+    int idx = copiedState[date]!
+        .workouts
+        .indexWhere((element) => element.name == event.workout.name);
+    copiedState[date]!.workouts[idx] = event.workout;
+    emit(CurrentRoutinState(routine: copiedState));
+  }
 }
 
 // event
@@ -36,6 +51,16 @@ class CreateRoutineEvent extends RoutineEvent {
   final Workout workout;
 
   CreateRoutineEvent({required this.date, required this.workout});
+
+  @override
+  List<Object?> get props => [date, workout];
+}
+
+class ModifyRoutineEvent extends RoutineEvent {
+  final DateTime date;
+  final Workout workout;
+
+  ModifyRoutineEvent({required this.date, required this.workout});
 
   @override
   List<Object?> get props => [date, workout];
