@@ -1,4 +1,6 @@
 import 'package:gymmy_client/models/routine.dart';
+import 'package:gymmy_client/models/sets.dart';
+import 'package:gymmy_client/models/workout.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 const String boxName = "routine";
@@ -15,6 +17,9 @@ class HiveProvider {
 
   init() async {
     await Hive.initFlutter();
+    Hive.registerAdapter(RoutineAdapter());
+    Hive.registerAdapter(WorkoutAdapter());
+    Hive.registerAdapter(SetsAdapter());
   }
 
   _open() async {
@@ -31,5 +36,17 @@ class HiveProvider {
     await _close();
 
     return result;
+  }
+
+  Future<void> writeRoutines(Routine routine) async {
+    await _open();
+    int idx = box.values.toList().indexWhere((e) => e.date == routine.date);
+
+    if (idx != -1) {
+      await box.deleteAt(idx);
+    }
+
+    await box.add(routine);
+    await _close();
   }
 }

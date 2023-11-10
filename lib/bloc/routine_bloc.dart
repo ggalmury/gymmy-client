@@ -10,8 +10,8 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
     on<RoutineEvent>((event, emit) async {
       if (event is InitRoutineEvent) {
         await _initRoutine(event, emit);
-      } else if (event is CreateRoutineEvent) {
-        _createRoutine(event, emit);
+      } else if (event is CreateWorkoutEvent) {
+        await _createWorkout(event, emit);
       } else if (event is ModifyRoutineEvent) {
         _modifyRoutine(event, emit);
       }
@@ -29,7 +29,7 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
     emit(CurrentRoutinState(routine: newState));
   }
 
-  void _createRoutine(CreateRoutineEvent event, emit) {
+  Future<void> _createWorkout(CreateWorkoutEvent event, emit) async {
     Map<String, Routine> copiedState = Map.from(state.routine);
 
     if (copiedState[event.date] == null) {
@@ -42,6 +42,8 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
       copiedState[event.date] =
           copiedState[event.date]!.copyWith(workouts: copiedWorkouts);
     }
+
+    await HiveProvider().writeRoutines(copiedState[event.date]!);
 
     emit(CurrentRoutinState(routine: copiedState));
   }
@@ -71,11 +73,11 @@ class InitRoutineEvent extends RoutineEvent {
   List<Object?> get props => [];
 }
 
-class CreateRoutineEvent extends RoutineEvent {
+class CreateWorkoutEvent extends RoutineEvent {
   final String date;
   final Workout workout;
 
-  CreateRoutineEvent({required this.date, required this.workout});
+  CreateWorkoutEvent({required this.date, required this.workout});
 
   @override
   List<Object?> get props => [date, workout];
