@@ -175,7 +175,7 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
 
     context.read<RoutineBloc>().add(
           CreateRoutineEvent(
-            date: date,
+            date: DateUtil.formatToYMD(date),
             workout: Workout(name: widget.workout.key),
           ),
         );

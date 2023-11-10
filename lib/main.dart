@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gymmy_client/bloc/routine_bloc.dart';
 import 'package:gymmy_client/bloc/selected_date_bloc.dart';
 import 'package:gymmy_client/properties/app_color.dart';
+import 'package:gymmy_client/repositories/hive_provider.dart';
 import 'package:gymmy_client/widgets/screens/index.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 init() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await HiveProvider().init();
 }
 
 void main() async {

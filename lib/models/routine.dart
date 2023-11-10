@@ -1,18 +1,25 @@
 import 'package:gymmy_client/models/workout.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'routine.g.dart';
 
+@HiveType(typeId: 0)
 @JsonSerializable()
 class Routine {
-  final DateTime date;
+  @HiveField(0)
+  final String date;
+
+  @HiveField(1)
   final String target;
+
+  @HiveField(2)
   final List<Workout> workouts;
 
   Routine({required this.date, required this.target, required this.workouts});
 
   Routine copyWith({
-    DateTime? date,
+    String? date,
     String? target,
     List<Workout>? workouts,
   }) {

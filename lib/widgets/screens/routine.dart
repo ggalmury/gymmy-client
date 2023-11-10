@@ -216,7 +216,6 @@ class _BottomSheetBody extends StatelessWidget {
           body: SingleChildScrollView(
             child: BlocBuilder<RoutineBloc, RoutineState>(
               builder: (context, state) {
-                // TODO: fix rendering issue
                 List<Workout>? workoutList = state
                     .routine[DateUtil.formatToYMD(dateState.selectedDate)]
                     ?.workouts;

@@ -2,12 +2,15 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gymmy_client/models/routine.dart';
 import 'package:gymmy_client/models/workout.dart';
+import 'package:gymmy_client/repositories/hive_provider.dart';
 import 'package:gymmy_client/utils/helper/date_util.dart';
 
 class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
   RoutineBloc() : super(InitRoutineState()) {
-    on<RoutineEvent>((event, emit) {
-      if (event is CreateRoutineEvent) {
+    on<RoutineEvent>((event, emit) async {
+      if (event is InitRoutineEvent) {
+        await _initRoutine(event, emit);
+      } else if (event is CreateRoutineEvent) {
         _createRoutine(event, emit);
       } else if (event is ModifyRoutineEvent) {
         _modifyRoutine(event, emit);
@@ -15,17 +18,29 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
     });
   }
 
+  Future<void> _initRoutine(InitRoutineEvent event, emit) async {
+    Map<String, Routine> newState = {};
+    List<Routine> routineList = await HiveProvider().readRoutines();
+
+    for (Routine r in routineList) {
+      newState[r.date] = r;
+    }
+
+    emit(CurrentRoutinState(routine: newState));
+  }
+
   void _createRoutine(CreateRoutineEvent event, emit) {
     Map<String, Routine> copiedState = Map.from(state.routine);
-    String date = DateUtil.formatToYMD(event.date);
 
-    if (copiedState[date] == null) {
-      copiedState[date] =
+    if (copiedState[event.date] == null) {
+      copiedState[event.date] =
           Routine(date: event.date, target: "가슴", workouts: [event.workout]);
     } else {
-      List<Workout> copiedWorkouts = copiedState[date]!.workouts;
+      List<Workout> copiedWorkouts = copiedState[event.date]!.workouts;
+
       copiedWorkouts.add(event.workout);
-      copiedState[date] = copiedState[date]!.copyWith(workouts: copiedWorkouts);
+      copiedState[event.date] =
+          copiedState[event.date]!.copyWith(workouts: copiedWorkouts);
     }
 
     emit(CurrentRoutinState(routine: copiedState));
@@ -34,11 +49,14 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
   void _modifyRoutine(ModifyRoutineEvent event, emit) {
     Map<String, Routine> copiedState = Map.from(state.routine);
     String date = DateUtil.formatToYMD(event.date);
-
     int idx = copiedState[date]!
         .workouts
         .indexWhere((element) => element.name == event.workout.name);
-    copiedState[date]!.workouts[idx] = event.workout;
+
+    List<Workout> copiedWorkouts = List.from(copiedState[date]!.workouts);
+    copiedWorkouts[idx] = event.workout;
+    copiedState[date] = copiedState[date]!.copyWith(workouts: copiedWorkouts);
+
     emit(CurrentRoutinState(routine: copiedState));
   }
 }
@@ -46,8 +64,15 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
 // event
 abstract class RoutineEvent extends Equatable {}
 
+class InitRoutineEvent extends RoutineEvent {
+  InitRoutineEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class CreateRoutineEvent extends RoutineEvent {
-  final DateTime date;
+  final String date;
   final Workout workout;
 
   CreateRoutineEvent({required this.date, required this.workout});

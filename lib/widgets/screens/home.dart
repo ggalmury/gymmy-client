@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:gymmy_client/widgets/templates/base.dart';
 
 class Home extends StatefulWidget {

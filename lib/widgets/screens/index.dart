@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gymmy_client/bloc/routine_bloc.dart';
 import 'package:gymmy_client/widgets/screens/home.dart';
 import 'package:gymmy_client/widgets/screens/routine.dart';
 
@@ -20,6 +22,12 @@ class _IndexState extends State<Index> {
     setState(() {
       _curIdx = i;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<RoutineBloc>().add(InitRoutineEvent());
   }
 
   @override

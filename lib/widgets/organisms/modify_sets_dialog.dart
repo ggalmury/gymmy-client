@@ -64,13 +64,13 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
         return;
       }
     }
-    print(copiedSets);
-    Workout modifiedWorkout = widget.workout.copyWith(sets: copiedSets);
+
+    Workout copiedWorkout = widget.workout.copyWith(sets: copiedSets);
     DateTime date = context.read<SelectedDateBloc>().state.selectedDate;
 
     context
         .read<RoutineBloc>()
-        .add(ModifyRoutineEvent(date: date, workout: modifiedWorkout));
+        .add(ModifyRoutineEvent(date: date, workout: copiedWorkout));
 
     Navigator.pop(context);
   }
