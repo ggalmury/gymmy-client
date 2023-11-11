@@ -11,7 +11,9 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
         await _initRoutine(event, emit);
       } else if (event is CreateWorkoutEvent) {
         await _createWorkout(event, emit);
-      } else if (event is ModifyRoutineEvent) {
+      } else if (event is DeleteWorkoutEvent) {
+        await _deleteWorkout(event, emit);
+      } else if (event is ModifyWorkoutEvent) {
         await _modifyRoutine(event, emit);
       }
     });
@@ -42,7 +44,20 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
     emit(CurrentRoutinState(routine: copiedState));
   }
 
-  Future<void> _modifyRoutine(ModifyRoutineEvent event, emit) async {
+  Future<void> _deleteWorkout(DeleteWorkoutEvent event, emit) async {
+    Map<String, Routine> copiedState = Map.from(state.routine);
+    List<Workout> copiedWorkouts = copiedState[event.date]!.workouts;
+
+    copiedWorkouts.removeWhere((e) => e.name == event.name);
+    copiedState[event.date] =
+        copiedState[event.date]!.copyWith(workouts: copiedWorkouts);
+
+    await HiveProvider().writeRoutines(copiedState[event.date]!);
+
+    emit(CurrentRoutinState(routine: copiedState));
+  }
+
+  Future<void> _modifyRoutine(ModifyWorkoutEvent event, emit) async {
     Map<String, Routine> copiedState = Map.from(state.routine);
 
     int idx = copiedState[event.date]!
@@ -80,11 +95,21 @@ class CreateWorkoutEvent extends RoutineEvent {
   List<Object?> get props => [date, workout];
 }
 
-class ModifyRoutineEvent extends RoutineEvent {
+class DeleteWorkoutEvent extends RoutineEvent {
+  final String date;
+  final String name;
+
+  DeleteWorkoutEvent({required this.date, required this.name});
+
+  @override
+  List<Object?> get props => [date, name];
+}
+
+class ModifyWorkoutEvent extends RoutineEvent {
   final String date;
   final Workout workout;
 
-  ModifyRoutineEvent({required this.date, required this.workout});
+  ModifyWorkoutEvent({required this.date, required this.workout});
 
   @override
   List<Object?> get props => [date, workout];

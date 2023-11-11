@@ -220,7 +220,7 @@ class _BottomSheetBody extends StatelessWidget {
                     .routine[DateUtil.formatToYMD(dateState.selectedDate)]
                     ?.workouts;
 
-                return workoutList != null
+                return workoutList != null && workoutList.isNotEmpty
                     ? Column(
                         children: List.generate(
                           workoutList.length,
@@ -279,9 +279,13 @@ class __WorkoutContainerState extends State<_WorkoutContainer> {
   void _onDelete() {
     showDialog(
       context: context,
-      builder: (context) => const AlertModal(
+      builder: (context) => AlertModal(
         title: "루틴을 삭제할까요?",
         cancelable: true,
+        onConfirm: () => context.read<RoutineBloc>().add(DeleteWorkoutEvent(
+            date: DateUtil.formatToYMD(
+                context.read<SelectedDateBloc>().state.selectedDate),
+            name: widget.workout.name)),
       ),
     );
   }

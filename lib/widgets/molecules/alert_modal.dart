@@ -47,7 +47,10 @@ class AlertModal extends StatelessWidget {
                   Expanded(
                     child: PrimaryBtn(
                       label: submitBtnLabel ?? "예",
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        if (onConfirm != null) onConfirm!();
+                        Navigator.pop(context);
+                      },
                       widgetColor: WidgetColor.appColor,
                       widgetSize: WidgetSize.small,
                     ),

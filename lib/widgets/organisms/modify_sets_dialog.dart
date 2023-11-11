@@ -69,7 +69,7 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
     Workout copiedWorkout = widget.workout.copyWith(sets: copiedSets);
     DateTime date = context.read<SelectedDateBloc>().state.selectedDate;
 
-    context.read<RoutineBloc>().add(ModifyRoutineEvent(
+    context.read<RoutineBloc>().add(ModifyWorkoutEvent(
         date: DateUtil.formatToYMD(date), workout: copiedWorkout));
 
     Navigator.pop(context);
