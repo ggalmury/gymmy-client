@@ -6,6 +6,7 @@ import 'package:gymmy_client/models/sets.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
+import 'package:gymmy_client/utils/helper/date_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/inputs/dynamic_input.dart';
 import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
@@ -68,9 +69,8 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
     Workout copiedWorkout = widget.workout.copyWith(sets: copiedSets);
     DateTime date = context.read<SelectedDateBloc>().state.selectedDate;
 
-    context
-        .read<RoutineBloc>()
-        .add(ModifyRoutineEvent(date: date, workout: copiedWorkout));
+    context.read<RoutineBloc>().add(ModifyRoutineEvent(
+        date: DateUtil.formatToYMD(date), workout: copiedWorkout));
 
     Navigator.pop(context);
   }

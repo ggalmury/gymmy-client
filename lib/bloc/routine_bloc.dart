@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:gymmy_client/models/routine.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/repositories/hive_provider.dart';
-import 'package:gymmy_client/utils/helper/date_util.dart';
 
 class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
   RoutineBloc() : super(InitRoutineState()) {
@@ -13,18 +12,13 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
       } else if (event is CreateWorkoutEvent) {
         await _createWorkout(event, emit);
       } else if (event is ModifyRoutineEvent) {
-        _modifyRoutine(event, emit);
+        await _modifyRoutine(event, emit);
       }
     });
   }
 
   Future<void> _initRoutine(InitRoutineEvent event, emit) async {
-    Map<String, Routine> newState = {};
-    List<Routine> routineList = await HiveProvider().readRoutines();
-
-    for (Routine r in routineList) {
-      newState[r.date] = r;
-    }
+    Map<String, Routine> newState = await HiveProvider().readRoutines();
 
     emit(CurrentRoutinState(routine: newState));
   }
@@ -48,16 +42,19 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
     emit(CurrentRoutinState(routine: copiedState));
   }
 
-  void _modifyRoutine(ModifyRoutineEvent event, emit) {
+  Future<void> _modifyRoutine(ModifyRoutineEvent event, emit) async {
     Map<String, Routine> copiedState = Map.from(state.routine);
-    String date = DateUtil.formatToYMD(event.date);
-    int idx = copiedState[date]!
+
+    int idx = copiedState[event.date]!
         .workouts
         .indexWhere((element) => element.name == event.workout.name);
 
-    List<Workout> copiedWorkouts = List.from(copiedState[date]!.workouts);
+    List<Workout> copiedWorkouts = List.from(copiedState[event.date]!.workouts);
     copiedWorkouts[idx] = event.workout;
-    copiedState[date] = copiedState[date]!.copyWith(workouts: copiedWorkouts);
+    copiedState[event.date] =
+        copiedState[event.date]!.copyWith(workouts: copiedWorkouts);
+
+    await HiveProvider().writeRoutines(copiedState[event.date]!);
 
     emit(CurrentRoutinState(routine: copiedState));
   }
@@ -84,7 +81,7 @@ class CreateWorkoutEvent extends RoutineEvent {
 }
 
 class ModifyRoutineEvent extends RoutineEvent {
-  final DateTime date;
+  final String date;
   final Workout workout;
 
   ModifyRoutineEvent({required this.date, required this.workout});
