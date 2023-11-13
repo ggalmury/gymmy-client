@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 
-class SearchInput extends StatelessWidget {
+class PrimaryInput extends StatelessWidget {
   final TextEditingController controller;
   final String? hintText;
   final IconData? prefixIcon;
 
-  const SearchInput(
+  const PrimaryInput(
       {super.key, required this.controller, this.hintText, this.prefixIcon});
 
   @override
@@ -28,11 +28,13 @@ class SearchInput extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(vertical: 18),
         filled: true,
         fillColor: AppColor.grey1,
-        prefixIcon: Icon(
-          prefixIcon,
-          color: Colors.black,
-          size: 25,
-        ),
+        prefixIcon: prefixIcon != null
+            ? Icon(
+                prefixIcon,
+                color: Colors.black,
+                size: 25,
+              )
+            : null,
       ),
     );
   }

@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:gymmy_client/widgets/templates/base.dart';
+import 'package:gymmy_client/widgets/layouts/base.dart';
 
-class Home extends StatefulWidget {
+class Home extends StatelessWidget {
   const Home({super.key});
 
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return const Base(
