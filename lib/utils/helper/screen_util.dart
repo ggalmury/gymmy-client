@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -13,36 +15,15 @@ class ScreenUtil {
       isScrollControlled: true,
       showDragHandle: true,
       builder: (ctx) {
+        double h = Platform.isAndroid ? 0.8 : 0.75;
+
         return SafeArea(
           child: GestureDetector(
             onTap: keyboardOff,
-            child: Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                height: height ?? MediaQuery.of(context).size.height * 0.8,
-                child: child,
-              ),
+            child: SizedBox(
+              height: height ?? MediaQuery.of(context).size.height * h,
+              child: child,
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  static modalHandler(BuildContext context, Widget child) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return Dialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(20),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: child,
           ),
         );
       },

@@ -5,12 +5,10 @@ import 'package:gymmy_client/bloc/selected_date_bloc.dart';
 import 'package:gymmy_client/models/workout.dart';
 import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/constant.dart';
-import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/date_util.dart';
-import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
-import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
-import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
-import 'package:gymmy_client/widgets/templates/modify_sets_dialog.dart';
+import 'package:gymmy_client/widgets/molecules/app_alert.dart';
+import 'package:gymmy_client/widgets/molecules/btn_row.dart';
+import 'package:gymmy_client/widgets/templates/modify_sets.dart';
 
 class RegisteredWorkoutContainer extends StatefulWidget {
   final Workout workout;
@@ -37,15 +35,14 @@ class _RegisteredWorkoutContainerState
       context: context,
       barrierDismissible: true,
       barrierLabel: "",
-      pageBuilder: (context, _, __) =>
-          ModifySetsDialog(workout: widget.workout),
+      pageBuilder: (context, _, __) => ModifySets(workout: widget.workout),
     );
   }
 
   void _onDelete() {
     showDialog(
       context: context,
-      builder: (context) => AlertModal(
+      builder: (context) => AppAlert(
         title: "루틴을 삭제할까요?",
         cancelable: true,
         onConfirm: () => context.read<RoutineBloc>().add(DeleteWorkoutEvent(
@@ -148,25 +145,11 @@ class _RegisteredWorkoutContainerState
                 height: _updateToggle ? 50 : 0,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.ease,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextBtn(
-                        label: "삭제",
-                        onPressed: _onDelete,
-                        fontColor: Colors.red,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: PrimaryBtn(
-                        label: "정보",
-                        onPressed: _onModify,
-                        widgetColor: WidgetColor.appColor,
-                        widgetSize: WidgetSize.small,
-                      ),
-                    )
-                  ],
+                child: BtnRow(
+                  submitLabel: "정보",
+                  cancelLabel: "삭제",
+                  onSubmit: _onModify,
+                  onCancel: _onDelete,
                 ),
               ),
             ],

@@ -3,14 +3,14 @@ import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/text_btn.dart';
 
-class AlertModal extends StatelessWidget {
+class AppAlert extends StatelessWidget {
   final String title;
   final String? subTitle;
   final bool? cancelable;
   final VoidCallback? onConfirm;
   final String? submitBtnLabel;
 
-  const AlertModal(
+  const AppAlert(
       {super.key,
       required this.title,
       this.subTitle,

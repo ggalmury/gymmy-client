@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gymmy_client/widgets/templates/routine_info_bottomsheet.dart';
+import 'package:gymmy_client/widgets/templates/routine_info.dart';
 import 'package:intl/intl.dart';
 import 'package:gymmy_client/bloc/selected_date_bloc.dart';
 import 'package:gymmy_client/properties/app_color.dart';
@@ -89,7 +89,7 @@ class Routine extends StatelessWidget {
                         label: "자세히 보기",
                         onPressed: () => ScreenUtil.bottomSheetHandler(
                           context,
-                          const RoutineInfoBottomSheet(),
+                          const RoutineInfo(),
                         ),
                         widgetColor: WidgetColor.appColor,
                         widgetSize: WidgetSize.big,

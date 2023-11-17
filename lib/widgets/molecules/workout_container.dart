@@ -8,7 +8,7 @@ import 'package:gymmy_client/properties/app_color.dart';
 import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/date_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
-import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
+import 'package:gymmy_client/widgets/molecules/app_alert.dart';
 
 class WorkoutContainer extends StatefulWidget {
   final MapEntry<String, Map<String, dynamic>> workout;
@@ -38,7 +38,7 @@ class _WorkoutContainerState extends State<WorkoutContainer> {
         state.workouts.where((e) => e.name == widget.workout.key).isNotEmpty) {
       showDialog(
         context: context,
-        builder: (context) => AlertModal(
+        builder: (context) => AppAlert(
           title: "이미 추가된 루틴입니다.",
           subTitle: widget.workout.key,
           submitBtnLabel: "확인",
@@ -57,7 +57,7 @@ class _WorkoutContainerState extends State<WorkoutContainer> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertModal(
+      builder: (context) => AppAlert(
         title: "루틴이 추가되었습니다.",
         subTitle: widget.workout.key,
         submitBtnLabel: "확인",

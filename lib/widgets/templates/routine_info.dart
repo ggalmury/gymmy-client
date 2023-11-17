@@ -11,8 +11,8 @@ import 'package:gymmy_client/widgets/molecules/registered_workout_container.dart
 import 'package:gymmy_client/widgets/screens/routine_create.dart';
 import 'package:intl/intl.dart';
 
-class RoutineInfoBottomSheet extends StatelessWidget {
-  const RoutineInfoBottomSheet({super.key});
+class RoutineInfo extends StatelessWidget {
+  const RoutineInfo({super.key});
 
   @override
   Widget build(BuildContext context) {

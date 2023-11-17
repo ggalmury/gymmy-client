@@ -9,18 +9,18 @@ import 'package:gymmy_client/utils/enum/widget.dart';
 import 'package:gymmy_client/utils/helper/date_util.dart';
 import 'package:gymmy_client/widgets/atoms/buttons/primary_btn.dart';
 import 'package:gymmy_client/widgets/atoms/inputs/dynamic_input.dart';
-import 'package:gymmy_client/widgets/molecules/alert_modal.dart';
+import 'package:gymmy_client/widgets/molecules/app_alert.dart';
 
-class ModifySetsDialog extends StatefulWidget {
+class ModifySets extends StatefulWidget {
   final Workout workout;
 
-  const ModifySetsDialog({super.key, required this.workout});
+  const ModifySets({super.key, required this.workout});
 
   @override
-  State<ModifySetsDialog> createState() => _ModifySetsDialogState();
+  State<ModifySets> createState() => _ModifySetsState();
 }
 
-class _ModifySetsDialogState extends State<ModifySetsDialog> {
+class _ModifySetsState extends State<ModifySets> {
   late List<Sets> sets;
   late List<TextEditingController> _countControllers;
   late List<TextEditingController> _weightControllers;
@@ -56,7 +56,7 @@ class _ModifySetsDialogState extends State<ModifySetsDialog> {
       } on FormatException {
         showDialog(
           context: context,
-          builder: (context) => const AlertModal(
+          builder: (context) => const AppAlert(
             title: "올바른 숫자를 입력해 주세요.",
             submitBtnLabel: "확인",
           ),
