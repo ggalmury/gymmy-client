@@ -22,7 +22,13 @@ class ScreenUtil {
             onTap: keyboardOff,
             child: SizedBox(
               height: height ?? MediaQuery.of(context).size.height * h,
-              child: child,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 25,
+                  vertical: 10,
+                ),
+                child: child,
+              ),
             ),
           ),
         );

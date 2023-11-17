@@ -19,7 +19,7 @@ class _TimePickerState extends State<TimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    double width = 240;
+    double width = 250;
 
     return SizedBox(
       width: width,
@@ -94,7 +94,7 @@ class __CellState extends State<_Cell> {
                 child: Text(
                   widget.list[index].toString(),
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                   ),
                 ),
               ),

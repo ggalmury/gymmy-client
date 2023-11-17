@@ -19,6 +19,8 @@ class PrimaryBtn extends StatelessWidget {
     switch (widgetColor) {
       case WidgetColor.appColor:
         return AppColor.appColor;
+      case WidgetColor.grey:
+        return AppColor.grey2;
     }
   }
 
@@ -26,6 +28,8 @@ class PrimaryBtn extends StatelessWidget {
     switch (widgetColor) {
       case WidgetColor.appColor:
         return Colors.white;
+      case WidgetColor.grey:
+        return Colors.black;
     }
   }
 

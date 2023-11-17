@@ -30,7 +30,7 @@ class RoutineBloc extends Bloc<RoutineEvent, RoutineState> {
 
     if (copiedState[event.date] == null) {
       copiedState[event.date] =
-          Routine(date: event.date, target: "가슴", workouts: [event.workout]);
+          Routine(date: event.date, workouts: [event.workout]);
     } else {
       List<Workout> copiedWorkouts = copiedState[event.date]!.workouts;
 

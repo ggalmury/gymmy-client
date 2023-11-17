@@ -11,21 +11,16 @@ class Routine {
   final String date;
 
   @HiveField(1)
-  final String target;
-
-  @HiveField(2)
   final List<Workout> workouts;
 
-  Routine({required this.date, required this.target, required this.workouts});
+  Routine({required this.date, required this.workouts});
 
   Routine copyWith({
     String? date,
-    String? target,
     List<Workout>? workouts,
   }) {
     return Routine(
       date: date ?? this.date,
-      target: target ?? this.target,
       workouts: workouts ?? this.workouts,
     );
   }

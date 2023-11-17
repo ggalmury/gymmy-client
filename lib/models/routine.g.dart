@@ -18,20 +18,17 @@ class RoutineAdapter extends TypeAdapter<Routine> {
     };
     return Routine(
       date: fields[0] as String,
-      target: fields[1] as String,
-      workouts: (fields[2] as List).cast<Workout>(),
+      workouts: (fields[1] as List).cast<Workout>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Routine obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(2)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
-      ..write(obj.target)
-      ..writeByte(2)
       ..write(obj.workouts);
   }
 
@@ -52,7 +49,6 @@ class RoutineAdapter extends TypeAdapter<Routine> {
 
 Routine _$RoutineFromJson(Map<String, dynamic> json) => Routine(
       date: json['date'] as String,
-      target: json['target'] as String,
       workouts: (json['workouts'] as List<dynamic>)
           .map((e) => Workout.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -60,6 +56,5 @@ Routine _$RoutineFromJson(Map<String, dynamic> json) => Routine(
 
 Map<String, dynamic> _$RoutineToJson(Routine instance) => <String, dynamic>{
       'date': instance.date,
-      'target': instance.target,
       'workouts': instance.workouts,
     };
